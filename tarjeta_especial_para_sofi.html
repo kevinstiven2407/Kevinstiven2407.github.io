@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Sofi 🖤💜✨</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        goth: {
+                            bg: '#0a0512',
+                            card: '#150a24',
+                            purple: '#8b5cf6',
+                            deepPurple: '#3b0764',
+                            accentPurple: '#a855f7',
+                            gold: '#eab308',
+                            brightGold: '#fde047',
+                            darkGold: '#854d0e',
+                        }
+                    },
+                    fontFamily: {
+                        gothic: ['Cinzel', 'serif'],
+                        handwriting: ['Caveat', 'cursive'],
+                        body: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Cinzel:wght@500;700;900&family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom Gothic Styles -->
+    <style>
+        body {
+            background-color: #0a0512;
+            color: #f3f4f6;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+
+        .font-gothic { fontFamily: 'Cinzel', serif; }
+        .font-handwriting { fontFamily: 'Caveat', cursive; }
+
+        /* Canvas Overlay setup */
+        #interactiveCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        #flowerCanvas {
+            max-width: 100%;
+            max-height: 100%;
+            filter: drop-shadow(0 0 25px rgba(168, 85, 247, 0.4)) drop-shadow(0 0 10px rgba(234, 179, 8, 0.3));
+        }
+
+        /* Glassmorphism Gothic Card */
+        .gothic-card {
+            background: linear-gradient(145deg, rgba(21, 10, 36, 0.88), rgba(10, 5, 18, 0.95));
+            border: 1px solid rgba(234, 179, 8, 0.3);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.25), inset 0 0 15px rgba(234, 179, 8, 0.08);
+            backdrop-filter: blur(12px);
+        }
+
+        .gothic-border {
+            position: relative;
+        }
+        .gothic-border::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: inherit;
+            padding: 2px;
+            background: linear-gradient(135deg, #eab308, #3b0764, #a855f7, #eab308);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        /* Glow effects */
+        .text-glow-gold {
+            text-shadow: 0 0 12px rgba(253, 224, 71, 0.6), 0 0 25px rgba(234, 179, 8, 0.4);
+        }
+
+        .text-glow-purple {
+            text-shadow: 0 0 12px rgba(168, 85, 247, 0.7), 0 0 30px rgba(139, 92, 246, 0.5);
+        }
+
+        /* Gothic Button Style */
+        .btn-gothic {
+            background: linear-gradient(135deg, #3b0764 0%, #150a24 50%, #3b0764 100%);
+            border: 1px solid rgba(234, 179, 8, 0.5);
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.3), inset 0 0 10px rgba(234, 179, 8, 0.2);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .btn-gothic:hover {
+            border-color: #fde047;
+            box-shadow: 0 0 25px rgba(234, 179, 8, 0.7), 0 0 15px rgba(168, 85, 247, 0.6);
+            transform: translateY(-2px) scale(1.03);
+        }
+
+        .btn-gothic:active {
+            transform: translateY(1px) scale(0.98);
+        }
+
+        /* Animations */
+        @keyframes pulse-slow {
+            0%, 100% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.04); opacity: 1; }
+        }
+
+        .animate-pulse-slow {
+            animation: pulse-slow 3s infinite ease-in-out;
+        }
+
+        @keyframes float-gentle {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(1deg); }
+        }
+
+        .animate-float {
+            animation: float-gentle 5s infinite ease-in-out;
+        }
+
+        /* Screen Transitions */
+        .screen {
+            transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
+            opacity: 0;
+            pointer-events: none;
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .screen.active {
+            opacity: 1;
+            pointer-events: auto;
+            position: relative;
+        }
+
+        .screen.hidden-screen {
+            display: none !important;
+        }
+    </style>
+</head>
+<body class="h-full w-full bg-goth-bg text-gray-100 flex flex-col justify-between select-none relative overflow-x-hidden">
+
+    <canvas id="interactiveCanvas"></canvas>
+
+    <!-- Background Ambient Glows -->
+    <div class="fixed top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-900/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="fixed bottom-1/4 left-1/3 w-80 h-80 bg-amber-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <!-- Audio Control Button -->
+    <button id="soundToggleBtn" class="fixed top-5 right-5 z-50 bg-goth-card/80 hover:bg-goth-card text-amber-400 border border-amber-500/40 p-3 rounded-full shadow-lg transition-all transform hover:scale-110 active:scale-95 text-sm flex items-center justify-center">
+        <i class="fas fa-volume-mute text-lg" id="soundIcon"></i>
+    </button>
+
+    <!-- Main Step Screens Container -->
+    <main class="relative z-10 w-full min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 my-auto">
+        
+        <!-- SCREEN 1: INTRO -->
+        <section id="screen1" class="screen active w-full max-w-lg text-center space-y-8 my-auto">
+            <div class="animate-float">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-goth-deepPurple/50 border border-amber-500/40 text-amber-400 text-3xl mb-6 shadow-2xl text-glow-gold">
+                    <i class="fas fa-moon"></i>
+                </div>
+                <h1 class="font-gothic text-3xl sm:text-4xl md:text-5xl font-bold text-glow-purple text-purple-200 tracking-wider leading-relaxed">
+                    Tengo algo para ti... <span class="text-amber-400 text-glow-gold">💜</span>
+                </h1>
+                <p class="text-sm sm:text-base text-purple-300/80 mt-3 font-body font-light italic">
+                    Un detalle especial hecho con todo el cariño para Sofi
+                </p>
+            </div>
+
+            <div class="pt-6">
+                <button id="btnStart" class="btn-gothic text-amber-300 font-gothic px-8 py-4 rounded-2xl text-lg sm:text-xl font-bold tracking-widest flex items-center gap-3 mx-auto animate-pulse-slow">
+                    <span>ABRIR</span>
+                    <i class="fas fa-key text-amber-400 text-base"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- SCREEN 2: RAMO DE FLORES GÓTICO -->
+        <section id="screen2" class="screen hidden-screen w-full max-w-2xl text-center space-y-6 my-auto">
+            <div class="relative w-full flex flex-col items-center justify-center">
+                <!-- Canvas Container for Flowers -->
+                <div class="relative w-80 h-96 sm:w-96 sm:h-[420px] flex items-center justify-center">
+                    <canvas id="flowerCanvas" width="400" height="450"></canvas>
+                </div>
+
+                <div class="mt-4 space-y-2">
+                    <h2 class="font-gothic text-2xl sm:text-3xl font-bold text-purple-200 text-glow-purple tracking-wide">
+                        Para ti, Sofi... <span class="text-amber-400 text-glow-gold">🖤✨</span>
+                    </h2>
+                    <p class="text-xs sm:text-sm text-amber-200/70 italic font-body">
+                        Rosas oscuras y destellos dorados que nunca se marchitan
+                    </p>
+                </div>
+
+                <div class="pt-6">
+                    <button id="btnToMessage" class="btn-gothic text-purple-200 font-gothic px-7 py-3.5 rounded-xl text-base sm:text-lg font-semibold tracking-wider flex items-center gap-3 mx-auto">
+                        <span>Leer mensaje</span>
+                        <i class="fas fa-envelope-open-text text-amber-400"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 3: EL MENSAJE FINAL -->
+        <section id="screen3" class="screen hidden-screen w-full max-w-xl text-center my-auto">
+            <div class="gothic-card gothic-border rounded-3xl p-6 sm:p-10 md:p-12 relative overflow-hidden shadow-2xl animate-float">
+                
+                <!-- Corner Ornaments -->
+                <div class="absolute top-3 left-4 text-amber-500/30 text-xl font-gothic">✦</div>
+                <div class="absolute top-3 right-4 text-amber-500/30 text-xl font-gothic">✦</div>
+                <div class="absolute bottom-3 left-4 text-amber-500/30 text-xl font-gothic">✦</div>
+                <div class="absolute bottom-3 right-4 text-amber-500/30 text-xl font-gothic">✦</div>
+
+                <div class="mb-4">
+                    <span class="text-3xl text-amber-400 text-glow-gold">✨</span>
+                </div>
+
+                <!-- Recipient Name -->
+                <h1 class="font-gothic text-4xl sm:text-5xl font-black text-amber-400 text-glow-gold tracking-widest mb-6 border-b border-amber-500/20 pb-4">
+                    Sofi
+                </h1>
+
+                <!-- Exact Message Content -->
+                <div class="space-y-4 font-handwriting text-2xl sm:text-3xl md:text-4xl leading-relaxed text-purple-100 font-semibold">
+                    <p class="text-purple-200 text-glow-purple">
+                        eres muy fuerte saldrás de esta y más
+                    </p>
+                    <p class="text-amber-200/90">
+                        no he podido llevarte tus florecitas
+                    </p>
+                    <p class="text-purple-300">
+                        pero espero con estas hacerte sonreír
+                    </p>
+                    <p class="text-amber-300 font-bold text-glow-gold pt-1">
+                        te amo un abrazo
+                    </p>
+                    <p class="text-purple-200">
+                        cuentas conmigo siempre
+                    </p>
+                    <p class="text-amber-400 font-bold text-3xl sm:text-4xl md:text-5xl text-glow-gold pt-3">
+                        arriba esos ánimos eres increíble
+                    </p>
+                </div>
+
+                <!-- Footer details -->
+                <div class="mt-8 pt-6 border-t border-purple-900/50 flex items-center justify-center gap-2 text-xs text-amber-400/80 font-body">
+                    <i class="fas fa-sparkles text-amber-400"></i>
+                    <span>Toca en cualquier parte para crear destellos de luz</span>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="mt-6 flex flex-wrap items-center justify-center gap-4">
+                <button id="btnBackToFlowers" class="bg-goth-card/80 hover:bg-goth-card text-purple-300 border border-purple-500/40 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-gothic tracking-wider flex items-center gap-2 transition-all hover:border-amber-400">
+                    <i class="fas fa-flower-tulip"></i>
+                    <span>Ver ramo de nuevo</span>
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- JavaScript Logic -->
+    <script>
+        
+        // Canvas particle background system
+        const canvas = document.getElementById('interactiveCanvas');
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        // Audio System via Web Audio API
+        let audioCtx = null;
+        let soundEnabled = false;
+
+        function playGothicNote(freq, type = 'sine', duration = 1.2) {
+            if (!soundEnabled) return;
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+                // Slight harp-like decay
+                gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {
+                console.log('Audio note error', e);
+            }
+        }
+
+        function playChimeSequence() {
+            if (!soundEnabled) return;
+            const notes = [293.66, 349.23, 440.00, 523.25, 659.25]; // D4, F4, A4, C5, E5 (D minor / mysterious)
+            notes.forEach((freq, idx) => {
+                setTimeout(() => playGothicNote(freq, 'sine', 1.5), idx * 140);
+            });
+        }
+
+        // --- Particle & Petal Canvas ---
+        let particles = [];
+
+        class Particle {
+            constructor(x, y, type = 'sparkle') {
+                this.x = x || Math.random() * width;
+                this.y = y || Math.random() * height;
+                this.type = type; // 'sparkle', 'petal', 'heart'
+                this.size = type === 'petal' ? Math.random() * 8 + 6 : Math.random() * 3 + 2;
+                this.vx = (Math.random() - 0.5) * (type === 'sparkle' ? 2 : 1);
+                this.vy = type === 'petal' ? Math.random() * 1.5 + 0.8 : (Math.random() - 0.5) * 2;
+                this.life = 1;
+                this.decay = Math.random() * 0.015 + 0.005;
+                this.color = type === 'petal' 
+                    ? (Math.random() < 0.6 ? '#2e1065' : '#8b5cf6')
+                    : (Math.random() < 0.6 ? '#fde047' : '#eab308');
+                this.rotation = Math.random() * Math.PI * 2;
+                this.rotSpeed = (Math.random() - 0.5) * 0.05;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.rotation += this.rotSpeed;
+                this.life -= this.decay;
+
+                if (this.type === 'petal' && this.y > height + 10) {
+                    this.y = -10;
+                    this.x = Math.random() * width;
+                    this.life = 1;
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, this.life);
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+
+                if (this.type === 'petal') {
+                    ctx.fillStyle = this.color;
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, this.size, this.size / 2, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                } else {
+                    ctx.fillStyle = this.color;
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = this.color;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                ctx.restore();
+            }
+        }
+
+        // Populate initial floating background sparkles & petals
+        for (let i = 0; i < 45; i++) {
+            particles.push(new Particle(null, null, i % 2 === 0 ? 'sparkle' : 'petal'));
+        }
+
+        function createBurst(x, y) {
+            for (let i = 0; i < 18; i++) {
+                particles.push(new Particle(x, y, i % 3 === 0 ? 'petal' : 'sparkle'));
+            }
+            playGothicNote(400 + Math.random() * 400, 'sine', 0.8);
+        }
+
+        function animateCanvas() {
+            ctx.clearRect(0, 0, width, height);
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.update();
+                p.draw();
+                if (p.life <= 0 && p.type === 'sparkle') {
+                    particles.splice(i, 1);
+                }
+            }
+
+            requestAnimationFrame(animateCanvas);
+        }
+        animateCanvas();
+
+        // Burst particles on touch/click anywhere
+        window.addEventListener('pointerdown', (e) => {
+            if (e.target.closest('button')) return;
+            createBurst(e.clientX, e.clientY);
+        });
+
+        // --- Gothic Flower Bouquet Drawer ---
+        const fCanvas = document.getElementById('flowerCanvas');
+        const fCtx = fCanvas.getContext('2d');
+
+        let bloomProgress = 0;
+        let isBlooming = false;
+
+        function drawGothicRose(x, y, scale, colorPetal, colorCore) {
+            fCtx.save();
+            fCtx.translate(x, y);
+            fCtx.scale(scale * bloomProgress, scale * bloomProgress);
+
+            // Petals outer
+            for (let i = 0; i < 7; i++) {
+                const angle = (Math.PI * 2 / 7) * i;
+                fCtx.save();
+                fCtx.rotate(angle);
+                fCtx.fillStyle = colorPetal;
+                fCtx.beginPath();
+                fCtx.moveTo(0, 0);
+                fCtx.bezierCurveTo(-25, -20, -15, -45, 0, -45);
+                fCtx.bezierCurveTo(15, -45, 25, -20, 0, 0);
+                fCtx.fill();
+                fCtx.strokeStyle = 'rgba(234, 179, 8, 0.4)';
+                fCtx.lineWidth = 1;
+                fCtx.stroke();
+                fCtx.restore();
+            }
+
+            // Petals Inner Core
+            fCtx.fillStyle = colorCore;
+            fCtx.beginPath();
+            fCtx.arc(0, 0, 14, 0, Math.PI * 2);
+            fCtx.fill();
+
+            // Gold Stamens
+            fCtx.fillStyle = '#fde047';
+            for (let j = 0; j < 6; j++) {
+                const a = (Math.PI * 2 / 6) * j;
+                fCtx.beginPath();
+                fCtx.arc(Math.cos(a) * 8, Math.sin(a) * 8, 2.5, 0, Math.PI * 2);
+                fCtx.fill();
+            }
+
+            fCtx.restore();
+        }
+
+        function drawGothicTulip(x, y, scale, color) {
+            fCtx.save();
+            fCtx.translate(x, y);
+            fCtx.scale(scale * bloomProgress, scale * bloomProgress);
+
+            fCtx.fillStyle = color;
+            fCtx.beginPath();
+            fCtx.moveTo(0, 10);
+            fCtx.bezierCurveTo(-25, -10, -20, -40, -10, -50);
+            fCtx.bezierCurveTo(0, -35, 0, -35, 0, -50);
+            fCtx.bezierCurveTo(0, -35, 0, -35, 10, -50);
+            fCtx.bezierCurveTo(20, -40, 25, -10, 0, 10);
+            fCtx.fill();
+
+            fCtx.strokeStyle = '#fde047';
+            fCtx.lineWidth = 1.5;
+            fCtx.stroke();
+
+            fCtx.restore();
+        }
+
+        function renderBouquet() {
+            fCtx.clearRect(0, 0, fCanvas.width, fCanvas.height);
+
+            const centerX = fCanvas.width / 2;
+            const baseY = fCanvas.height - 20;
+
+            // Stems
+            fCtx.strokeStyle = '#2e1065';
+            fCtx.lineWidth = 4;
+            fCtx.lineCap = 'round';
+
+            const stems = [
+                { x: centerX - 40, y: 160 },
+                { x: centerX - 20, y: 120 },
+                { x: centerX, y: 100 },
+                { x: centerX + 20, y: 130 },
+                { x: centerX + 45, y: 170 }
+            ];
+
+            stems.forEach(s => {
+                fCtx.beginPath();
+                fCtx.moveTo(centerX, baseY);
+                fCtx.quadraticCurveTo(centerX + (s.x - centerX) * 0.5, baseY - 100, s.x, s.y);
+                fCtx.stroke();
+            });
+
+            // Golden ribbon wrap
+            fCtx.fillStyle = '#854d0e';
+            fCtx.strokeStyle = '#fde047';
+            fCtx.lineWidth = 1.5;
+            fCtx.beginPath();
+            fCtx.ellipse(centerX, baseY - 80, 25, 12, 0, 0, Math.PI * 2);
+            fCtx.fill();
+            fCtx.stroke();
+
+            if (bloomProgress > 0) {
+                // Dark Roses and Purple Gothic Flowers
+                drawGothicRose(centerX, 120, 1.1, '#180728', '#a855f7'); // Central dark purple rose
+                drawGothicRose(centerX - 45, 160, 0.95, '#0a0512', '#6b21a8'); // Left black rose
+                drawGothicRose(centerX + 50, 170, 0.9, '#0a0512', '#eab308'); // Right black/gold rose
+                drawGothicTulip(centerX - 25, 110, 0.85, '#a855f7'); // Top left purple tulip
+                drawGothicTulip(centerX + 25, 120, 0.85, '#3b0764'); // Top right deep purple tulip
+            }
+
+            if (isBlooming && bloomProgress < 1) {
+                bloomProgress += 0.02;
+                requestAnimationFrame(renderBouquet);
+            }
+        }
+
+        function startBouquetAnimation() {
+            bloomProgress = 0;
+            isBlooming = true;
+            renderBouquet();
+        }
+
+        // --- Screen Navigation Logic ---
+        const screen1 = document.getElementById('screen1');
+        const screen2 = document.getElementById('screen2');
+        const screen3 = document.getElementById('screen3');
+
+        const btnStart = document.getElementById('btnStart');
+        const btnToMessage = document.getElementById('btnToMessage');
+        const btnBackToFlowers = document.getElementById('btnBackToFlowers');
+        const soundToggleBtn = document.getElementById('soundToggleBtn');
+        const soundIcon = document.getElementById('soundIcon');
+
+        function switchScreen(fromScreen, toScreen, callback) {
+            fromScreen.classList.remove('active');
+            setTimeout(() => {
+                fromScreen.classList.add('hidden-screen');
+                toScreen.classList.remove('hidden-screen');
+                setTimeout(() => {
+                    toScreen.classList.add('active');
+                    if (callback) callback();
+                }, 50);
+            }, 500);
+        }
+
+        btnStart.addEventListener('click', () => {
+            switchScreen(screen1, screen2, () => {
+                startBouquetAnimation();
+                createBurst(width / 2, height / 2);
+                playChimeSequence();
+            });
+        });
+
+        btnToMessage.addEventListener('click', () => {
+            switchScreen(screen2, screen3, () => {
+                createBurst(width / 2, height / 3);
+                playChimeSequence();
+            });
+        });
+
+        btnBackToFlowers.addEventListener('click', () => {
+            switchScreen(screen3, screen2, () => {
+                startBouquetAnimation();
+            });
+        });
+
+        // Sound Toggle
+        soundToggleBtn.addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            if (soundEnabled) {
+                soundIcon.className = 'fas fa-volume-up text-lg text-amber-400';
+                soundToggleBtn.classList.add('border-amber-400', 'bg-purple-950/80');
+                playChimeSequence();
+            } else {
+                soundIcon.className = 'fas fa-volume-mute text-lg text-amber-400';
+                soundToggleBtn.classList.remove('border-amber-400', 'bg-purple-950/80');
+            }
+        });
+    </script>
+</body>
+</html>
